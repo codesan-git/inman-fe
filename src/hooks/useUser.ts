@@ -62,7 +62,7 @@ export const usePostUser = () => {
   return state
 }
 
-export const useUpdateUser = () => {
+export const useUpdateUser = (p0: { onSuccess: () => void; onError: () => "Gagal membuat password"; }) => {
   const queryClient = useQueryClient();
   const state = useMutation(() => ({
     mutationKey: ['users', 'update'],

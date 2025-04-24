@@ -30,6 +30,7 @@ export const useGetUser = () => {
     queryKey: ['users'],
     queryFn: async () => {
       try {
+        console.log('[useGetUser] FETCH users terpanggil');
         const res = await axios.get(`${axiosUrl}/api/users`);
         return res.data;
       } catch (err) {
@@ -55,6 +56,7 @@ export const usePostUser = () => {
       }
     },
     onSuccess: () => {
+      console.log('[MUTATION onSuccess] invalidate users terpanggil');
       queryClient.invalidateQueries({ queryKey: ['users'] });
     },
   }))
@@ -75,6 +77,7 @@ export const useUpdateUser = () => {
       }
     },
     onSuccess: () => {
+      console.log('[MUTATION onSuccess] invalidate users terpanggil');
       queryClient.invalidateQueries({ queryKey: ['users'] });
     },
   }))
@@ -95,7 +98,9 @@ export const useDeleteUser = () => {
       }
     },
     onSuccess: () => {
+      console.log('[MUTATION onSuccess] invalidate users terpanggil');
       queryClient.invalidateQueries({ queryKey: ['users'] });
+      queryClient.refetchQueries({ queryKey: ['users'] });
     },
   }))
   return state;

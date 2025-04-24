@@ -7,7 +7,7 @@ export default function UserList() {
   const query = useGetUser();
 
   return (
-    <div>
+    <div class="flex flex-col gap-3">
       <Switch>
         <Match when={query.isPending}>
           <p>Loading...</p>
@@ -18,7 +18,7 @@ export default function UserList() {
         <Match when={query.isSuccess}>
           <For each={query.data}>
             {(user) => (
-              <Card class="my-2">
+              <Card>
                 <CardHeader>
                   <CardTitle>{user.name} ({user.role})</CardTitle>
                 </CardHeader>

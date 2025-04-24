@@ -1,17 +1,15 @@
-import './app.css'
-import UserList from '~/components/UserList'
-import UserInput from '~/components/UserInput'
+import { AppSidebar } from "~/components/common/app-sidebar"
+import { SidebarProvider, SidebarTrigger } from "~/components/ui/sidebar"
+import { ParentProps } from "solid-js";
 
-function App() {
-
+export default function Layout(props: ParentProps) {
   return (
-    <>
-      <div class="flex gap-4">
-        <UserList />
-        <UserInput />
-      </div>
-    </>
+    <SidebarProvider>
+      <AppSidebar />
+      <main>
+        <SidebarTrigger />
+        {props.children}
+      </main>
+    </SidebarProvider>
   )
 }
-
-export default App

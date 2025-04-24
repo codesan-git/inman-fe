@@ -1,11 +1,14 @@
 import { createSignal } from "solid-js";
 import { useUpdateUser, useDeleteUser, User, UpdateUser } from "../hooks/useUser";
 import { Button } from "./ui/button";
+import { RadioGroup, RadioGroupItem, RadioGroupItemLabel } from "~/components/ui/radio-group";
 
 interface UserEditDeleteProps {
   user: User;
   onDone?: () => void;
 }
+
+import { createEffect } from "solid-js";
 
 export default function UserEditDelete(props: UserEditDeleteProps) {
   const updateUser = useUpdateUser();
@@ -16,6 +19,11 @@ export default function UserEditDelete(props: UserEditDeleteProps) {
   const [phone, setPhone] = createSignal(props.user.phone_number || "");
   const [avatar, setAvatar] = createSignal(props.user.avatar_url || "");
   const [role, setRole] = createSignal(props.user.role || "");
+
+  createEffect(() => {
+    if (updateUser.isSuccess && props.onDone) props.onDone();
+    if (deleteUser.isSuccess && props.onDone) props.onDone();
+  });
 
   function handleUpdate(e: Event) {
     e.preventDefault();
@@ -37,27 +45,34 @@ export default function UserEditDelete(props: UserEditDeleteProps) {
   }
 
   return (
-    <form onSubmit={handleUpdate} class="flex flex-col gap-2 border border-gray-200 p-3 rounded-lg my-2">
-      <label>
-        Name:
-        <input value={name()} onInput={e => setName(e.currentTarget.value)} />
-      </label>
-      <label>
-        Email:
-        <input value={email()} onInput={e => setEmail(e.currentTarget.value)} />
-      </label>
-      <label>
-        Phone:
-        <input value={phone()} onInput={e => setPhone(e.currentTarget.value)} />
-      </label>
-      <label>
-        Avatar URL:
-        <input value={avatar()} onInput={e => setAvatar(e.currentTarget.value)} />
-      </label>
-      <label>
-        Role:
-        <input value={role()} onInput={e => setRole(e.currentTarget.value)} />
-      </label>
+    <form onSubmit={handleUpdate} class="grid gap-4 border border-gray-200 p-3 rounded-lg my-2">
+      <div class="grid gap-2">
+        <label class="font-medium">Name</label>
+        <input class="w-full border rounded px-3 py-2" value={name()} onInput={e => setName(e.currentTarget.value)} />
+      </div>
+      <div class="grid gap-2">
+        <label class="font-medium">Email</label>
+        <input class="w-full border rounded px-3 py-2" value={email()} onInput={e => setEmail(e.currentTarget.value)} />
+      </div>
+      <div class="grid gap-2">
+        <label class="font-medium">Phone</label>
+        <input class="w-full border rounded px-3 py-2" value={phone()} onInput={e => setPhone(e.currentTarget.value)} />
+      </div>
+      <div class="grid gap-2">
+        <label class="font-medium">Avatar URL</label>
+        <input class="w-full border rounded px-3 py-2" value={avatar()} onInput={e => setAvatar(e.currentTarget.value)} />
+      </div>
+      <div class="grid gap-2">
+        <label class="font-medium">Role</label>
+        <RadioGroup value={role()} onChange={setRole} class="flex gap-4">
+          <RadioGroupItem value="Staff">
+            <RadioGroupItemLabel>Staff</RadioGroupItemLabel>
+          </RadioGroupItem>
+          <RadioGroupItem value="Admin">
+            <RadioGroupItemLabel>Admin</RadioGroupItemLabel>
+          </RadioGroupItem>
+        </RadioGroup>
+      </div>
       <div class="flex gap-2">
         <Button type="submit" disabled={updateUser.isPending}>Update</Button>
         <Button type="button" onClick={handleDelete} disabled={deleteUser.isPending} variant="destructive">Delete</Button>
@@ -66,6 +81,7 @@ export default function UserEditDelete(props: UserEditDeleteProps) {
       {updateUser.isSuccess && <div class="text-green-600">Updated!</div>}
       {deleteUser.isError && <div class="text-red-600">Delete error</div>}
       {deleteUser.isSuccess && <div class="text-green-600">Deleted!</div>}
+
     </form>
   );
 }

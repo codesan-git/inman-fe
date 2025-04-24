@@ -23,31 +23,40 @@
     --color-card: hsl(0 0% 100%);
     --color-card-foreground: hsl(240 10% 3.9%);
 
-    --color-primary: hsl(240 5.9% 10%);
-    --color-primary-foreground: hsl(0 0% 98%);
+    --color-primary: #0e5aaa;
+    --color-primary-foreground: #ffffff;
 
-    --color-secondary: hsl(240 4.8% 95.9%);
-    --color-secondary-foreground: hsl(240 5.9% 10%);
+    --color-secondary: #e6f0fa;
+    --color-secondary-foreground: #0e5aaa;
 
-    --color-accent: hsl(240 4.8% 95.9%);
-    --color-accent-foreground: hsl(240 5.9% 10%);
+    --color-accent: #e6f0fa;
+    --color-accent-foreground: #0e5aaa;
 
-    --color-destructive: hsl(0 84.2% 60.2%);
-    --color-destructive-foreground: hsl(0 0% 98%);
+    --color-destructive: #e53935;
+    --color-destructive-foreground: #fff;
 
-    --color-info: hsl(204 94% 94%);
-    --color-info-foreground: hsl(199 89% 48%);
+    --color-info: #e3f0fa;
+    --color-info-foreground: #0e5aaa;
 
-    --color-success: hsl(149 80% 90%);
-    --color-success-foreground: hsl(160 84% 39%);
+    --color-success: #e6f9f0;
+    --color-success-foreground: #179c5a;
 
-    --color-warning: hsl(48 96% 89%);
-    --color-warning-foreground: hsl(25 95% 53%);
+    --color-warning: #fff7e0;
+    --color-warning-foreground: #e6a100;
 
-    --color-error: hsl(0 93% 94%);
-    --color-error-foreground: hsl(0 84% 60%);
+    --color-error: #fdeaea;
+    --color-error-foreground: #e53935;
 
     --color-ring: hsl(240 5.9% 10%);
+
+    --sidebar: #1e3a8a;
+    --sidebar-foreground: #ffffff;
+    --sidebar-primary: #ffffff;
+    --sidebar-primary-foreground: #1e3a8a;
+    --sidebar-accent: rgba(255, 255, 255, 0.1);
+    --sidebar-accent-foreground: #ffffff;
+    --sidebar-border: rgba(255, 255, 255, 0.2);
+    --sidebar-ring: #ffffff;
   }
 
   .dark,
@@ -73,25 +82,34 @@
     --color-primary: hsl(0 0% 98%);
     --color-primary-foreground: hsl(240 5.9% 10%);
 
-    --color-secondary: hsl(240 3.7% 15.9%);
-    --color-secondary-foreground: hsl(0 0% 98%);
+    --color-secondary: #173d5e;
+    --color-secondary-foreground: #e6f0fa;
 
-    --color-destructive: hsl(0 62.8% 30.6%);
-    --color-destructive-foreground: hsl(0 0% 98%);
+    --color-accent: #173d5e;
+    --color-accent-foreground: #e6f0fa;
 
-    --color-info: hsl(226.2 57% 21%);
-    --color-info-foreground: hsl(199 89% 48%);
+    --color-info: #174a7c;
+    --color-info-foreground: #e3f0fa;
 
-    --color-success: hsl(165.7 91.3% 9%);
-    --color-success-foreground: hsl(160 84% 39%);
+    --color-success: #145c37;
+    --color-success-foreground: #e6f9f0;
 
-    --color-warning: hsl(26 83.3% 14.1%);
-    --color-warning-foreground: hsl(25 95% 53%);
+    --color-warning: #665100;
+    --color-warning-foreground: #fff7e0;
 
-    --color-error: hsl(0 74.7% 15.5%);
-    --color-error-foreground: hsl(0 84% 60%);
+    --color-error: #6b1818;
+    --color-error-foreground: #fdeaea;
 
     --color-ring: hsl(240 4.9% 83.9%);
+
+    --sidebar: #1e3a8a;
+    --sidebar-foreground: #ffffff;
+    --sidebar-primary: #ffffff;
+    --sidebar-primary-foreground: #1e3a8a;
+    --sidebar-accent: rgba(255, 255, 255, 0.1);
+    --sidebar-accent-foreground: #ffffff;
+    --sidebar-border: rgba(255, 255, 255, 0.2);
+    --sidebar-ring: #ffffff;
   }
 
   * {

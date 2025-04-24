@@ -17,6 +17,7 @@ const queryClient = new QueryClient()
 
 const Home = lazy(() => import("./pages/home"));
 const Users = lazy(() => import("./pages/users"));
+const Auth = lazy(() => import("./pages/auth"));
 
 function Layout(props: ParentProps) {
   return (
@@ -42,6 +43,10 @@ const routes = {
     {
       path: "/users",
       component: Users
+    },
+    {
+      path: "/login",
+      component: Auth
     }
   ]
 }

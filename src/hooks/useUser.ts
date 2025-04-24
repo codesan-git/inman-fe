@@ -21,6 +21,7 @@ export interface UpdateUser {
   phone_number?: string;
   avatar_url?: string;
   role?: string;
+  password?: string;
 }
 
 const axiosUrl = 'http://localhost:8080'

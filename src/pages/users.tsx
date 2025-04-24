@@ -28,7 +28,7 @@ function Users() {
               </Match>
               <Match when={query.isSuccess}>
                 <Show when={query.data}>
-                  {(users) => <UsersDataTable users={users()} refreshKey={0} />}
+                  {(users) => <UsersDataTable users={users()} />}
                 </Show>
               </Match>
             </Switch>

@@ -21,8 +21,7 @@ import { Button } from "~/components/ui/button";
  */
 import { createEffect } from "solid-js";
 
-export default function UsersDataTable(props: { users: User[], refreshKey: number }) {
-  console.log('UsersDataTable props.users', props.users);
+export default function UsersDataTable(props: { users: User[] }) {
   const [sorting, setSorting] = createSignal<SortingState>([]);
   const [columnFilters, setColumnFilters] = createSignal<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = createSignal<VisibilityState>({});
@@ -34,10 +33,12 @@ export default function UsersDataTable(props: { users: User[], refreshKey: numbe
     setColumnFilters([]);
     setColumnVisibility({});
     setRowSelection({});
-  }, [() => props.refreshKey]);
+  }, [() => props.users]);
 
   const table = createSolidTable({
-    data: props.users,
+    get data() {
+      return props.users;
+    },
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),

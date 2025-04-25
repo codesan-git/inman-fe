@@ -8,8 +8,7 @@ import {
   QueryClient,
   QueryClientProvider,
 } from '@tanstack/solid-query';
-import { SidebarProvider, SidebarTrigger } from '~/components/ui/sidebar';
-import { AppSidebar } from '~/components/common/app-sidebar';
+import { SidebarProvider } from '~/components/ui/sidebar';
 import CustomSidebar from './components/common/custom-sidebar';
 
 const root = document.getElementById('root')
@@ -18,6 +17,8 @@ const queryClient = new QueryClient()
 const Home = lazy(() => import("./pages/home"));
 const Users = lazy(() => import("./pages/users"));
 const Auth = lazy(() => import("./pages/auth"));
+const Items = lazy(() => import("./pages/items"));
+const ItemDetail = lazy(() => import("./pages/items-detail"));
 
 function Layout(props: ParentProps) {
   return (
@@ -47,6 +48,14 @@ const routes = {
     {
       path: "/login",
       component: Auth
+    },
+    {
+      path: "/items",
+      component: Items
+    },
+    {
+      path: "/items/:id",
+      component: ItemDetail
     }
   ]
 }

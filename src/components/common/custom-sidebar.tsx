@@ -1,17 +1,18 @@
 import { createSignal, Show } from "solid-js";
 import { A, useLocation } from "@solidjs/router";
-// import { useMe } from "~/hooks/useMe";
+import { useMe } from "~/hooks/useMe";
 
 const menuItems = [
   { title: "Dashboard", url: "/" },
   { title: "Users", url: "/users" },
+  { title: "Items", url: "/items" },
   { title: "Settings", url: "/settings" },
 ];
 
 export default function CustomSidebar() {
   const [open, setOpen] = createSignal(false);
   const location = useLocation();
-  // const user = useMe();
+  const user = useMe();
 
   return (
     <>
@@ -48,12 +49,9 @@ export default function CustomSidebar() {
         style="will-change: transform;"
       >
         <div class="px-6 py-4 font-bold text-xl border-b border-sidebar-border flex justify-between items-center text-neutral-50">
-          {/* <Show when={user.isPending} fallback={user.error ? "InMan" : (user.data ? user.data.name : "InMan")}>
-            Loading...
-          </Show>
           <Show when={user.data}>
-            {user.data.name}
-          </Show> */}
+            {user.data?.name}
+          </Show>
           {/* Close button for mobile */}
           <button
             class="md:hidden"

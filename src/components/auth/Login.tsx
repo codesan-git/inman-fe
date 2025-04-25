@@ -14,38 +14,30 @@ export default function Login() {
 
   const checkUser = useCheckUser(
     (data) => {
-      console.log('[checkUser onSuccess]', data);
       setUserId(data.id);
       if (data.password_exists) {
         setStep("password");
-        console.log('[setStep] -> password');
       } else {
         setStep("create-password");
-        console.log('[setStep] -> create-password');
       }
     },
     () => {
       setError("User tidak ditemukan.");
       setUserId(null);
-      console.log('[checkUser onError]');
     }
   );
   const loginUser = useLogin(
     (data) => {
-      console.log('[loginUser onSuccess]', data);
-      // Token akan otomatis tersimpan di cookie oleh browser
       navigate("/");
     },
     (err) => {
       setError("Login otomatis gagal. Silakan login manual.");
-      console.log('[loginUser onError]', err);
     }
   );
   const isLoading = checkUser.isPending || loginUser.isPending;
 
   function handleSubmit(e: Event) {
     e.preventDefault();
-    console.log('[handleSubmit] step:', step());
     if (step() === "name") {
       handleCheckUser(e);
     } else if (step() === "password") {
@@ -57,13 +49,11 @@ export default function Login() {
 
   async function handleCheckUser(e: Event) {
     setError("");
-    console.log('[handleCheckUser] name:', name());
     checkUser.mutate(name());
   }
 
   async function handleLogin(e: Event) {
     setError("");
-    console.log('[handleLogin] name:', name(), 'password:', password());
     loginUser.mutate({ name: name(), password: password() });
   }
 
@@ -101,7 +91,7 @@ export default function Login() {
             <div class="text-sm text-gray-500 mt-1">Nama: <span class="font-semibold">{name()}</span></div>
           </Match>
           <Match when={step() === "create-password" && userId()}>
-            <CreatePassword name={name()} userId={userId()!} onSuccess={() => setStep("password")} />
+            <CreatePassword name={name()} userId={userId()!} onSuccess={() => navigate("/")} />
           </Match>
         </Switch>
         {error() && <div class="bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded text-sm">{error()}</div>}

@@ -6,11 +6,15 @@ const stats = [
 ];
 
 import InventoryDataTable from "~/components/inventory/data-table";
+import { useMe } from "~/hooks/useMe";
 
 const Home = () => {
+
+  const user = useMe()
+
   return (
     <div class="p-8">
-      <h1 class="text-2xl font-bold mb-6 text-sidebar">Dashboard Inventaris Masjid</h1>
+      <h1 class="text-2xl font-bold mb-6 text-sidebar">Dashboard Inventaris Masjid {user.data?.name}</h1>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {stats.map(stat => (
           <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center border border-gray-100">

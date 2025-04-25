@@ -7,32 +7,42 @@ import { useLogin } from "../../hooks/useAuth";
 export default function CreatePassword({ name, userId, onSuccess }: { name: string; userId: string; onSuccess: () => void }) {
   const [password, setPassword] = createSignal("");
   const [error, setError] = createSignal("");
+  const [success, setSuccess] = createSignal("");
   const updateUser = useUpdateUser({
-    onSuccess: () => doLogin(),
-    onError: () => setError("Gagal membuat password"),
+    onSuccess: () => { },
+    onError: () => "Gagal membuat password",
   });
   const navigate = useNavigate();
   const loginUser = useLogin(
-    (data) => {
-      localStorage.setItem("token", data.token);
+    (_data) => {
       navigate("/");
     },
-    () => setError("Login otomatis gagal. Silakan login manual.")
+    (err) => setError("Login otomatis gagal. Silakan login manual.")
   );
 
-  function doLogin() {
-    if (password().length < 4) {
-      setError("Password minimal 4 karakter");
-      return;
-    }
-    loginUser.mutate({ name, password: password() });
-  }
-
-  function handleSubmit(e: Event) {
+  const handleSubmit = async (e: Event) => {
     e.preventDefault();
     setError("");
-    updateUser.mutate({ id: userId, data: { password: password() } });
-  }
+    setSuccess("");
+    if (!password()) {
+      setError("Password tidak boleh kosong");
+      return;
+    }
+    try {
+      const res = await updateUser.mutateAsync({
+        id: userId,
+        data: { password: password(), from_login: true },
+      });
+      // Jika backend minta redirect (flow create password dari login), lakukan login otomatis
+      if (res && typeof res === "object" && res.redirect) {
+        loginUser.mutate({ name, password: password() });
+      } else {
+        setSuccess("Password berhasil dibuat!");
+      }
+    } catch (err: any) {
+      setError(err?.response?.data || "Gagal membuat password");
+    }
+  };
 
   return (
     <form onSubmit={handleSubmit} class="flex flex-col gap-3">
@@ -41,10 +51,11 @@ export default function CreatePassword({ name, userId, onSuccess }: { name: stri
         class="border rounded px-3 py-2"
         type="password"
         value={password()}
-        onInput={e => setPassword(e.currentTarget.value)}
+        onInput={(e) => setPassword(e.currentTarget.value)}
         required
       />
       {error() && <div class="text-red-600">{error()}</div>}
+      {success() && <div class="text-green-600">{success()}</div>}
       <Button type="submit" disabled={updateUser.isPending || loginUser.isPending}>
         {updateUser.isPending || loginUser.isPending ? "Memproses..." : "Buat Password & Login"}
       </Button>

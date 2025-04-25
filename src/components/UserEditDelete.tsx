@@ -1,5 +1,5 @@
 import { createSignal } from "solid-js";
-import { useUpdateUser, useDeleteUser, User, UpdateUser } from "../hooks/useUser";
+import { useUpdateUser, useDeleteUser } from "../hooks/useUser";
 import { Button } from "./ui/button";
 import { RadioGroup, RadioGroupItem, RadioGroupItemLabel } from "~/components/ui/radio-group";
 
@@ -9,9 +9,13 @@ interface UserEditDeleteProps {
 }
 
 import { createEffect } from "solid-js";
+import { UpdateUser, User } from "~/types/user.types";
 
 export default function UserEditDelete(props: UserEditDeleteProps) {
-  const updateUser = useUpdateUser();
+  const updateUser = useUpdateUser({
+    onSuccess: () => { },
+    onError: () => "Gagal membuat password",
+  });
   const deleteUser = useDeleteUser();
 
   const [name, setName] = createSignal(props.user.name || "");

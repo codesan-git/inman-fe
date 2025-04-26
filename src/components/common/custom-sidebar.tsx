@@ -1,6 +1,7 @@
 import { createSignal, Show } from "solid-js";
 import { A, useLocation } from "@solidjs/router";
 import { useMe } from "~/hooks/useMe";
+import { useLogout } from "~/hooks/useAuth";
 
 const menuItems = [
   { title: "Dashboard", url: "/" },
@@ -13,6 +14,7 @@ export default function CustomSidebar() {
   const [open, setOpen] = createSignal(false);
   const location = useLocation();
   const user = useMe();
+  const { logout } = useLogout();
 
   return (
     <>
@@ -77,6 +79,21 @@ export default function CustomSidebar() {
               </A>
             );
           })}
+
+          {/* Logout button */}
+          <button
+            onClick={() => logout()}
+            class="mt-auto block rounded-md px-3 py-2 hover:bg-red-500 hover:text-white transition-colors text-neutral-50 border border-red-400/30 cursor-pointer"
+          >
+            <div class="flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+              </svg>
+              Logout
+            </div>
+          </button>
         </nav>
         <div class="px-6 py-4 border-t border-sidebar-border text-xs text-neutral-50/80">
           &copy; {new Date().getFullYear()} InMan

@@ -1,7 +1,8 @@
 import axios from "axios";
-import { useMutation } from "@tanstack/solid-query";
+import { useMutation, useQueryClient } from "@tanstack/solid-query";
 import type { CheckUserResponse, LoginResponse } from "~/types/auth.types";
 import { apiUrl } from "./apiUrl";
+import { useNavigate } from "@solidjs/router";
 
 export const useCheckUser = (onSuccess?: (data: CheckUserResponse) => void, onError?: (err: unknown) => void) => {
   return useMutation(() => ({
@@ -34,3 +35,29 @@ export const useLogin = (onSuccess?: (data: LoginResponse) => void, onError?: (e
     },
   }));
 };
+
+export const useLogout = () => {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const logout = async () => {
+    try {
+      // Panggil endpoint logout di backend
+      await axios.get(`${apiUrl}/logout`, { withCredentials: true });
+
+      // Invalidate query cache untuk "me"
+      queryClient.invalidateQueries({ queryKey: ["me"] });
+
+      // Clear cache user
+      queryClient.setQueryData(["me"], null);
+
+      // Redirect ke halaman login
+      navigate("/login", { replace: true });
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
+
+  return { logout };
+};
+

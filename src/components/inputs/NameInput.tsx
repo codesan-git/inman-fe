@@ -26,6 +26,7 @@ export default function NameInput(props: {
       autocomplete="off"
       inputMode="text"
       pattern="[A-Za-z ]*"
+      placeholder="Masukkan Nama"
     />
   );
 }

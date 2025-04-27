@@ -7,7 +7,10 @@ export function useItems() {
   return useQuery<Item[]>(() => ({
     queryKey: ["items"],
     queryFn: async () => {
-      const res = await axios.get(`${apiUrl}/items`, { withCredentials: true });
+      const res = await axios.get(`${apiUrl}/items`, {
+        withCredentials: true,
+
+      });
       return res.data;
     },
   }));
@@ -19,7 +22,10 @@ export const useCreateItem = () => {
   return useMutation(() => ({
     mutationKey: ['items'],
     mutationFn: async (item: NewItem) => {
-      const res = await axios.post(`${apiUrl}/items`, item, { withCredentials: true });
+      const res = await axios.post(`${apiUrl}/items`, item, {
+        withCredentials: true,
+
+      });
       return res.data;
     },
     onSuccess: () => {
@@ -32,7 +38,10 @@ export function useItemDetail(id: string) {
   return useQuery(() => ({
     queryKey: ["item", id],
     queryFn: async () => {
-      const res = await axios.get<Item>(`${apiUrl}/items/${id}`, { withCredentials: true });
+      const res = await axios.get<Item>(`${apiUrl}/items/${id}`, {
+        withCredentials: true,
+
+      });
       return res.data;
     },
     enabled: !!id,
@@ -45,7 +54,10 @@ export const useUpdateItem = () => {
   return useMutation(() => ({
     mutationKey: ['items'],
     mutationFn: async ({ id, data }: { id: string; data: UpdateItem }) => {
-      const res = await axios.patch(`${apiUrl}/items/${id}`, data, { withCredentials: true });
+      const res = await axios.patch(`${apiUrl}/items/${id}`, data, {
+        withCredentials: true,
+
+      });
       return res.data;
     },
     onSuccess: () => {
@@ -59,7 +71,10 @@ export const useDeleteItem = () => {
   return useMutation(() => ({
     mutationKey: ['items'],
     mutationFn: async (id: string) => {
-      const res = await axios.delete(`${apiUrl}/items/${id}`, { withCredentials: true });
+      const res = await axios.delete(`${apiUrl}/items/${id}`, {
+        withCredentials: true,
+
+      });
       return res.data;
     },
     onSuccess: () => {

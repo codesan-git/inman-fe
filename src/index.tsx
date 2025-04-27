@@ -29,6 +29,7 @@ const AboutPage = lazy(() => import("./pages/about"));
 const Register = lazy(() => import("./pages/register"));
 const Dashboard = lazy(() => import("./pages/dashboard"));
 const Settings = lazy(() => import("./pages/settings"));
+const Logs = lazy(() => import("./pages/logs"));
 
 function Layout(props: ParentProps) {
   const location = useLocation();
@@ -95,6 +96,10 @@ const routes = [
   {
     path: "/items/:id",
     component: () => <ProtectedRoute><LayoutWrapper Component={<ItemDetail />} /></ProtectedRoute>
+  },
+  {
+    path: "/logs",
+    component: () => <ProtectedRoute><LayoutWrapper Component={<Logs />} /></ProtectedRoute>
   }
 ]
 

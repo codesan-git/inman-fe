@@ -7,6 +7,7 @@ const menuItems = [
   { title: "Dashboard", url: "/" },
   { title: "Users", url: "/users" },
   { title: "Items", url: "/items" },
+  { title: "Logs", url: "/logs" },
   { title: "Settings", url: "/settings" },
 ];
 

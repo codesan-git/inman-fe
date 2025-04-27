@@ -1,16 +1,7 @@
 import type { ColumnDef } from "@tanstack/solid-table";
 
-export type User = {
-  id: string;
-  name: string;
-  email?: string;
-  phone_number?: string;
-  avatar_url?: string;
-  role: string;
-  created_at: string;
-};
-
 import UserActionCell from "./UserActionCell";
+import { User } from "~/types/user.types";
 
 export const columns: ColumnDef<User>[] = [
   {

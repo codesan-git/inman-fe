@@ -1,6 +1,7 @@
 import axios from "axios"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/solid-query"
 import type { User, NewUser, UpdateUser } from "../types/user.types";
+import type { ErrorResponse } from "../types/error.types";
 import { apiUrl } from "./apiUrl";
 
 export const useGetUser = () => {
@@ -8,11 +9,13 @@ export const useGetUser = () => {
     queryKey: ['users'],
     queryFn: async () => {
       try {
-        const res = await axios.get(`${apiUrl}/users`);
+        const res = await axios.get(`${apiUrl}/users`, { withCredentials: true });
         return res.data;
-      } catch (err) {
-        console.error("Failed to fetch users", err);
-        throw err;
+      } catch (err: any) {
+        if (err.response && err.response.data) {
+          throw err.response.data as ErrorResponse;
+        }
+        throw { message: 'Unknown error' } as ErrorResponse;
       }
     },
   }))
@@ -25,7 +28,7 @@ export const usePostUser = () => {
     mutationKey: ['users'],
     mutationFn: async (user: NewUser) => {
       try {
-        const res = await axios.post(`${apiUrl}/users`, user);
+        const res = await axios.post(`${apiUrl}/users`, user, { withCredentials: true });
         return res.data;
       } catch (err) {
         console.error("Failed to post user", err);
@@ -45,7 +48,7 @@ export const useUpdateUser = (p0: { onSuccess: () => void; onError: () => "Gagal
     mutationKey: ['users', 'update'],
     mutationFn: async ({ id, data }: { id: string, data: UpdateUser }) => {
       try {
-        const res = await axios.patch(`${apiUrl}/users/${id}`, data);
+        const res = await axios.patch(`${apiUrl}/users/${id}`, data, { withCredentials: true });
         return res.data;
       } catch (err) {
         console.error("Failed to update user", err);
@@ -65,7 +68,7 @@ export const useDeleteUser = () => {
     mutationKey: ['users', 'delete'],
     mutationFn: async (id: string) => {
       try {
-        const res = await axios.delete(`${apiUrl}/users/${id}`);
+        const res = await axios.delete(`${apiUrl}/users/${id}`, { withCredentials: true });
         return res.data;
       } catch (err) {
         console.error("Failed to delete user", err);

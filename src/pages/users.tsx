@@ -24,7 +24,7 @@ function Users() {
                 <div>Loading...</div>
               </Match>
               <Match when={query.isError}>
-                <div class="text-red-600">Gagal mengambil data user</div>
+                <div class="text-red-600">{query.error?.message}</div>
               </Match>
               <Match when={query.isSuccess}>
                 <Show when={query.data}>

@@ -51,6 +51,9 @@ export const useLogout = () => {
       // Clear cache user
       queryClient.setQueryData(["me"], null);
 
+      // Clear cache users
+      queryClient.setQueryData(["users"], null);
+
       // Redirect ke halaman login
       navigate("/login", { replace: true });
     } catch (error) {

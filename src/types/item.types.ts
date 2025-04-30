@@ -3,12 +3,12 @@ import { UUID } from "crypto";
 export type Item = {
   id: UUID;
   name: string;
-  category: string;
+  category_id: UUID;
   quantity: number;
-  condition: string;
+  condition_id: UUID;
   location_id?: UUID | null;
   photo_url?: string | null;
-  source: string;
+  source_id: UUID;
   donor_id?: UUID | null;
   procurement_id?: UUID | null;
   created_at: string;

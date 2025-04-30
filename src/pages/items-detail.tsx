@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from "@solidjs/router";
 import { Show, ErrorBoundary, createSignal, createEffect, Match, Switch } from "solid-js";
 import { useItemDetail, useUpdateItem } from "~/hooks/useItems";
+import { useCategories, useConditions, useItemSources } from "~/hooks/useLookups";
 import type { UpdateItem } from "~/types/item.types";
 
 export default function ItemDetailPage() {
@@ -11,11 +12,16 @@ export default function ItemDetailPage() {
   const [editMode, setEditMode] = createSignal(false);
   const [editData, setEditData] = createSignal<Partial<UpdateItem>>({});
 
+  // Lookup hooks
+  const categoriesQuery = useCategories();
+  const conditionsQuery = useConditions();
+  const sourcesQuery = useItemSources();
+
   createEffect(() => {
     if (itemQuery.data && Object.keys(editData()).length === 0) {
       // Inisialisasi editData hanya sekali saat data pertama kali didapat
-      const { name, category, condition, quantity, source } = itemQuery.data;
-      setEditData({ name, category, condition, quantity, source });
+      const { name, category_id, condition_id, quantity, source_id, location_id, photo_url, donor_id, procurement_id } = itemQuery.data;
+      setEditData({ name, category_id, condition_id, quantity, source_id, location_id, photo_url, donor_id, procurement_id });
     }
     if (updateItem.status === 'success') setEditMode(false);
   });
@@ -53,13 +59,13 @@ export default function ItemDetailPage() {
                     <span class="font-semibold">Nama:</span> {itemQuery.data?.name}
                   </div>
                   <div>
-                    <span class="font-semibold">Kategori:</span> {itemQuery.data?.category}
+                    <span class="font-semibold">Kategori:</span> {categoriesQuery.data?.find((cat: any) => cat.id === itemQuery.data?.category_id)?.name || itemQuery.data?.category_id}
                   </div>
                   <div>
                     <span class="font-semibold">Jumlah:</span> {itemQuery.data?.quantity}
                   </div>
                   <div>
-                    <span class="font-semibold">Kondisi:</span> {itemQuery.data?.condition}
+                    <span class="font-semibold">Kondisi:</span> {conditionsQuery.data?.find((cond: any) => cond.id === itemQuery.data?.condition_id)?.name || itemQuery.data?.condition_id}
                   </div>
                   <div>
                     <span class="font-semibold">Lokasi:</span> {itemQuery.data?.location_id}
@@ -68,7 +74,7 @@ export default function ItemDetailPage() {
                     <span class="font-semibold">Photo URL:</span> {itemQuery.data?.photo_url}
                   </div>
                   <div>
-                    <span class="font-semibold">Asal:</span> {itemQuery.data?.source}
+                    <span class="font-semibold">Asal:</span> {sourcesQuery.data?.find((src: any) => src.id === itemQuery.data?.source_id)?.name || itemQuery.data?.source_id}
                   </div>
                   <div>
                     <span class="font-semibold">Donor:</span> {itemQuery.data?.donor_id}
@@ -91,12 +97,14 @@ export default function ItemDetailPage() {
                     </div>
                     <div>
                       <label class="font-semibold block mb-1">Kategori</label>
-                      <select name="category" class="border rounded px-2 py-1 w-full" value={editData().category ?? ""} onInput={handleEditChange}>
-                        <option value="">Pilih Kategori</option>
-                        <option value="electronics">Elektronik</option>
-                        <option value="furniture">Furnitur</option>
-                        <option value="other">Lainnya</option>
-                      </select>
+                      <select name="category_id" class="border rounded px-2 py-1 w-full" value={editData().category_id ?? ""} onInput={handleEditChange}>
+  <option value="">Pilih Kategori</option>
+  {categoriesQuery.isPending && <option value="" disabled>Memuat...</option>}
+  {categoriesQuery.error && <option value="" disabled>Gagal memuat</option>}
+  {categoriesQuery.data && categoriesQuery.data.map((cat: any) => (
+    <option value={cat.id}>{cat.name}</option>
+  ))}
+</select>
                     </div>
                     <div>
                       <label class="font-semibold block mb-1">Jumlah</label>
@@ -104,11 +112,14 @@ export default function ItemDetailPage() {
                     </div>
                     <div>
                       <label class="font-semibold block mb-1">Kondisi</label>
-                      <select name="condition" class="border rounded px-2 py-1 w-full" value={editData().condition ?? ""} onInput={handleEditChange}>
-                        <option value="">Pilih Kondisi</option>
-                        <option value="new">Baru</option>
-                        <option value="used">Bekas</option>
-                      </select>
+                      <select name="condition_id" class="border rounded px-2 py-1 w-full" value={editData().condition_id ?? ""} onInput={handleEditChange}>
+  <option value="">Pilih Kondisi</option>
+  {conditionsQuery.isPending && <option value="" disabled>Memuat...</option>}
+  {conditionsQuery.error && <option value="" disabled>Gagal memuat</option>}
+  {conditionsQuery.data && conditionsQuery.data.map((cond: any) => (
+    <option value={cond.id}>{cond.name}</option>
+  ))}
+</select>
                     </div>
                     <div>
                       <label class="font-semibold block mb-1">Lokasi (UUID)</label>
@@ -120,13 +131,14 @@ export default function ItemDetailPage() {
                     </div>
                     <div>
                       <label class="font-semibold block mb-1">Asal</label>
-                      <select name="source" class="border rounded px-2 py-1 w-full" value={editData().source ?? ""} onInput={handleEditChange}>
-                        <option value="">Pilih Asal</option>
-                        <option value="purchase">Pembelian</option>
-                        <option value="donation">Donasi</option>
-                        <option value="grant">Hibah</option>
-                        <option value="other">Lainnya</option>
-                      </select>
+                      <select name="source_id" class="border rounded px-2 py-1 w-full" value={editData().source_id ?? ""} onInput={handleEditChange}>
+  <option value="">Pilih Asal</option>
+  {sourcesQuery.isPending && <option value="" disabled>Memuat...</option>}
+  {sourcesQuery.error && <option value="" disabled>Gagal memuat</option>}
+  {sourcesQuery.data && sourcesQuery.data.map((src: any) => (
+    <option value={src.id}>{src.name}</option>
+  ))}
+</select>
                     </div>
                     <div>
                       <label class="font-semibold block mb-1">Donor (UUID)</label>

@@ -3,21 +3,8 @@ import ItemsDataTable from "~/components/items/data-table";
 import { useItems, useCreateItem, useDeleteItem } from "~/hooks/useItems";
 import type { NewItem } from "~/types/item.types";
 
-const CATEGORY_OPTIONS: { value: string; label: string }[] = [
-  { value: "electronics", label: "Elektronik" },
-  { value: "prayer", label: "Perlengkapan Ibadah" },
-  { value: "furniture", label: "Furniture" },
-];
-const CONDITION_OPTIONS: { value: string; label: string }[] = [
-  { value: "good", label: "Baik" },
-  { value: "damaged", label: "Rusak" },
-  { value: "lost", label: "Hilang" },
-];
-const SOURCE_OPTIONS: { value: string; label: string }[] = [
-  { value: "existing", label: "Inventaris Lama" },
-  { value: "donation", label: "Donasi" },
-  { value: "procurement", label: "Pengadaan" },
-];
+import { useCategories, useConditions, useItemSources } from "~/hooks/useLookups";
+
 
 export default function ItemsPage() {
   const itemsQuery = useItems();
@@ -27,17 +14,30 @@ export default function ItemsPage() {
 
   const [errors, setErrors] = createSignal<Record<string, string>>({});
 
+  // ...inside ItemsPage
+  const categoriesQuery = useCategories();
+  const conditionsQuery = useConditions();
+  const sourcesQuery = useItemSources();
+
   function handleCreate(e: Event) {
     e.preventDefault();
     const err: Record<string, string> = {};
     if (!newItem().name) err.name = "Nama barang wajib diisi";
-    if (!newItem().category) err.category = "Kategori wajib dipilih";
-    if (!newItem().condition) err.condition = "Kondisi wajib dipilih";
-    if (!newItem().source) err.source = "Asal wajib dipilih";
+    if (!newItem().category_id) err.category_id = "Kategori wajib dipilih";
+    if (!newItem().condition_id) err.condition_id = "Kondisi wajib dipilih";
+    if (!newItem().source_id) err.source_id = "Asal wajib dipilih";
     if (!newItem().quantity || (newItem()?.quantity!) < 1) err.quantity = "Jumlah minimal 1";
     setErrors(err);
     if (Object.keys(err).length > 0) return;
-    createItem.mutate(newItem() as NewItem);
+    // Only send the required fields and remove legacy fields
+    const payload: any = {
+      name: newItem().name,
+      category_id: newItem().category_id,
+      condition_id: newItem().condition_id,
+      source_id: newItem().source_id,
+      quantity: newItem().quantity
+    };
+    createItem.mutate(payload);
   }
 
   createEffect(() => {
@@ -68,47 +68,53 @@ export default function ItemsPage() {
         <div>
           <label class="block text-sm font-medium mb-1">Kategori</label>
           <select
-            class={`w-full rounded border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition ${errors().category ? 'border-red-500 ring-red-200' : 'border-gray-300'}`}
-            value={newItem().category || ""}
-            onInput={e => setNewItem(v => ({ ...v, category: e.currentTarget.value.toLowerCase() }))}
+            class={`w-full rounded border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition ${errors().category_id ? 'border-red-500 ring-red-200' : 'border-gray-300'}`}
+            value={newItem().category_id || ""}
+            onInput={e => setNewItem(v => ({ ...v, category_id: e.currentTarget.value as any }))}
           >
             <option value="" disabled>Pilih kategori</option>
-            {CATEGORY_OPTIONS.map(opt => (
-              <option value={opt.value}>{opt.label}</option>
+            {categoriesQuery.isPending && <option value="" disabled>Memuat...</option>}
+            {categoriesQuery.error && <option value="" disabled>Gagal memuat</option>}
+            {categoriesQuery.data && categoriesQuery.data.map((cat: any) => (
+              <option value={cat.id}>{cat.name}</option>
             ))}
           </select>
           <div class="text-xs text-gray-500 mt-1">Pilih kategori barang sesuai jenisnya</div>
-          {errors().category && <div class="text-xs text-red-500 mt-1">{errors().category}</div>}
+          {errors().category_id && <div class="text-xs text-red-500 mt-1">{errors().category_id}</div>}
         </div>
         <div>
           <label class="block text-sm font-medium mb-1">Kondisi</label>
           <select
-            class={`w-full rounded border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition ${errors().condition ? 'border-red-500 ring-red-200' : 'border-gray-300'}`}
-            value={newItem().condition || ""}
-            onInput={e => setNewItem(v => ({ ...v, condition: e.currentTarget.value.toLowerCase() }))}
+            class={`w-full rounded border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition ${errors().condition_id ? 'border-red-500 ring-red-200' : 'border-gray-300'}`}
+            value={newItem().condition_id || ""}
+            onInput={e => setNewItem(v => ({ ...v, condition_id: e.currentTarget.value as any }))}
           >
             <option value="" disabled>Pilih kondisi</option>
-            {CONDITION_OPTIONS.map(opt => (
-              <option value={opt.value}>{opt.label}</option>
+            {conditionsQuery.isPending && <option value="" disabled>Memuat...</option>}
+            {conditionsQuery.error && <option value="" disabled>Gagal memuat</option>}
+            {conditionsQuery.data && conditionsQuery.data.map((cond: any) => (
+              <option value={cond.id}>{cond.name}</option>
             ))}
           </select>
           <div class="text-xs text-gray-500 mt-1">Pilih kondisi fisik barang saat ini</div>
-          {errors().condition && <div class="text-xs text-red-500 mt-1">{errors().condition}</div>}
+          {errors().condition_id && <div class="text-xs text-red-500 mt-1">{errors().condition_id}</div>}
         </div>
         <div>
           <label class="block text-sm font-medium mb-1">Asal</label>
           <select
-            class={`w-full rounded border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition ${errors().source ? 'border-red-500 ring-red-200' : 'border-gray-300'}`}
-            value={newItem().source || ""}
-            onInput={e => setNewItem(v => ({ ...v, source: e.currentTarget.value.toLowerCase() }))}
+            class={`w-full rounded border px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition ${errors().source_id ? 'border-red-500 ring-red-200' : 'border-gray-300'}`}
+            value={newItem().source_id || ""}
+            onInput={e => setNewItem(v => ({ ...v, source_id: e.currentTarget.value as any }))}
           >
             <option value="" disabled>Pilih asal</option>
-            {SOURCE_OPTIONS.map(opt => (
-              <option value={opt.value}>{opt.label}</option>
+            {sourcesQuery.isPending && <option value="" disabled>Memuat...</option>}
+            {sourcesQuery.error && <option value="" disabled>Gagal memuat</option>}
+            {sourcesQuery.data && sourcesQuery.data.map((src: any) => (
+              <option value={src.id}>{src.name}</option>
             ))}
           </select>
           <div class="text-xs text-gray-500 mt-1">Pilih sumber barang</div>
-          {errors().source && <div class="text-xs text-red-500 mt-1">{errors().source}</div>}
+          {errors().source_id && <div class="text-xs text-red-500 mt-1">{errors().source_id}</div>}
         </div>
         <div>
           <label class="block text-sm font-medium mb-1">Jumlah</label>
@@ -131,7 +137,15 @@ export default function ItemsPage() {
       </form>
       <Show when={itemsQuery.isPending}>Loading...</Show>
       <Show when={itemsQuery.error}>Gagal memuat data</Show>
-      <ItemsDataTable items={itemsQuery.data || []} onDelete={onDelete} />
+      <Show when={categoriesQuery.data && conditionsQuery.data && sourcesQuery.data} fallback={<div>Loading...</div>}>
+        <ItemsDataTable
+          items={itemsQuery.data || []}
+          onDelete={onDelete}
+          categories={categoriesQuery.data}
+          conditions={conditionsQuery.data}
+          sources={sourcesQuery.data}
+        />
+      </Show>
     </div>
   );
 }

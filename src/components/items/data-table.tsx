@@ -16,7 +16,15 @@ import { TextField, TextFieldInput } from "~/components/ui/text-field";
 import { Button } from "~/components/ui/button";
 import type { Item } from "~/types/item.types";
 
-export default function ItemsDataTable(props: { items: Item[]; onDelete: (id: string) => void }) {
+type LookupProps = {
+  items: Item[];
+  onDelete: (id: string) => void;
+  categories?: { id: string; name: string }[];
+  conditions?: { id: string; name: string }[];
+  sources?: { id: string; name: string }[];
+};
+
+export default function ItemsDataTable(props: LookupProps) {
   const [sorting, setSorting] = createSignal<SortingState>([]);
   const [columnFilters, setColumnFilters] = createSignal<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = createSignal<VisibilityState>({});
@@ -33,7 +41,11 @@ export default function ItemsDataTable(props: { items: Item[]; onDelete: (id: st
     get data() {
       return props.items;
     },
-    columns,
+    columns: columns({
+      categories: props.categories,
+      conditions: props.conditions,
+      sources: props.sources,
+    }),
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -89,7 +101,7 @@ export default function ItemsDataTable(props: { items: Item[]; onDelete: (id: st
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} class="h-24 text-center">
+                <TableCell colSpan={8} class="h-24 text-center">
                   Tidak ada data.
                 </TableCell>
               </TableRow>

@@ -30,6 +30,7 @@ const Register = lazy(() => import("./pages/register"));
 const Dashboard = lazy(() => import("./pages/dashboard"));
 const Settings = lazy(() => import("./pages/settings"));
 const Logs = lazy(() => import("./pages/logs"));
+const LookupsConfig = lazy(() => import("./pages/lookups-config"));
 
 function Layout(props: ParentProps) {
   const location = useLocation();
@@ -84,6 +85,10 @@ const routes = [
   {
     path: "/settings",
     component: () => <ProtectedRoute><LayoutWrapper Component={<Settings />} /></ProtectedRoute>
+  },
+  {
+    path: "/lookups-config",
+    component: () => <ProtectedRoute><LayoutWrapper Component={<LookupsConfig />} /></ProtectedRoute>
   },
   {
     path: "/users",

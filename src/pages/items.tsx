@@ -3,7 +3,7 @@ import ItemsDataTable from "~/components/items/data-table";
 import { useItems, useCreateItem, useDeleteItem } from "~/hooks/useItems";
 import type { NewItem } from "~/types/item.types";
 
-import { useCategories, useConditions, useItemSources } from "~/hooks/useLookups";
+import { useCategories, useConditions, useSources } from "~/hooks/useLookups";
 
 
 export default function ItemsPage() {
@@ -17,7 +17,7 @@ export default function ItemsPage() {
   // ...inside ItemsPage
   const categoriesQuery = useCategories();
   const conditionsQuery = useConditions();
-  const sourcesQuery = useItemSources();
+  const sourcesQuery = useSources();
 
   function handleCreate(e: Event) {
     e.preventDefault();

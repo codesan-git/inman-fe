@@ -8,6 +8,7 @@ const menuItems = [
   { title: "Users", url: "/users" },
   { title: "Items", url: "/items" },
   { title: "Logs", url: "/logs" },
+  { title: "Lookups", url: "/lookups-config" },
   { title: "Settings", url: "/settings" },
 ];
 

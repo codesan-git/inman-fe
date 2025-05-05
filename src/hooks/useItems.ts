@@ -3,13 +3,29 @@ import axios from "axios";
 import { apiUrl } from "./apiUrl";
 import type { Item, NewItem, UpdateItem } from "~/types/item.types";
 
-export function useItems() {
+export function useItems(params?: {
+  name?: string;
+  category_id?: string;
+  condition_id?: string;
+  source_id?: string;
+  page?: number;
+  page_size?: number;
+}) {
   return useQuery<Item[]>(() => ({
-    queryKey: ["items"],
+    queryKey: ["items", params],
     queryFn: async () => {
-      const res = await axios.get(`${apiUrl}/items`, {
+      const query = new URLSearchParams();
+      if (params) {
+        if (params.name) query.append("name", params.name);
+        if (params.category_id) query.append("category_id", params.category_id);
+        if (params.condition_id) query.append("condition_id", params.condition_id);
+        if (params.source_id) query.append("source_id", params.source_id);
+        if (params.page) query.append("page", params.page.toString());
+        if (params.page_size) query.append("page_size", params.page_size.toString());
+      }
+      const url = `${apiUrl}/items${query.toString() ? "?" + query.toString() : ""}`;
+      const res = await axios.get(url, {
         withCredentials: true,
-
       });
       return res.data;
     },

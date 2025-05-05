@@ -3,7 +3,7 @@ import ItemsDataTable from "~/components/items/data-table";
 import { useItems, useCreateItem, useDeleteItem } from "~/hooks/useItems";
 import type { NewItem } from "~/types/item.types";
 
-import { useCategories, useConditions, useSources } from "~/hooks/useLookups";
+import { useCategories, useConditions, useSources, useLocations } from "~/hooks/useLookups";
 
 
 export default function ItemsPage() {
@@ -18,6 +18,7 @@ export default function ItemsPage() {
   const categoriesQuery = useCategories();
   const conditionsQuery = useConditions();
   const sourcesQuery = useSources();
+  const locationsQuery = useLocations();
 
   function handleCreate(e: Event) {
     e.preventDefault();
@@ -137,13 +138,14 @@ export default function ItemsPage() {
       </form>
       <Show when={itemsQuery.isPending}>Loading...</Show>
       <Show when={itemsQuery.error}>Gagal memuat data</Show>
-      <Show when={categoriesQuery.data && conditionsQuery.data && sourcesQuery.data} fallback={<div>Loading...</div>}>
+      <Show when={categoriesQuery.data && conditionsQuery.data && sourcesQuery.data && locationsQuery.data} fallback={<div>Loading...</div>}>
         <ItemsDataTable
           items={itemsQuery.data || []}
           onDelete={onDelete}
           categories={categoriesQuery.data}
           conditions={conditionsQuery.data}
           sources={sourcesQuery.data}
+          locations={locationsQuery.data}
         />
       </Show>
     </div>

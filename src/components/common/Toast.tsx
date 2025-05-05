@@ -23,7 +23,7 @@ export function Toast(props: { toast: ReturnType<typeof createToast>["toast"] })
     <Show when={props.toast()}>
       {t => (
         <div
-          class={`fixed top-6 right-6 z-50 px-4 py-2 rounded shadow-lg text-white transition-all animate-fade-in-up ${
+          class={`fixed bottom-6 right-6 z-50 px-4 py-2 rounded shadow-lg text-white transition-all animate-fade-in-up ${
             t().type === "success" ? "bg-green-600" : "bg-red-600"
           }`}
         >

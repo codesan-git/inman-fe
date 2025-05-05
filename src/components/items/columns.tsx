@@ -7,9 +7,16 @@ type LookupColumnsProps = {
   categories?: { id: string; name: string }[];
   conditions?: { id: string; name: string }[];
   sources?: { id: string; name: string }[];
+  locations?: { id: string; name: string }[];
 };
 
-export const columns = ({ categories, conditions, sources }: LookupColumnsProps): ColumnDef<Item>[] => [
+export const columns = ({ categories, conditions, sources, locations }: LookupColumnsProps): ColumnDef<Item>[] => [
+  {
+    id: "no",
+    header: "No",
+    cell: (props): JSX.Element => <span>{props.row.index + 1}</span>,
+    enableSorting: false,
+  },
   {
     accessorKey: "name",
     header: "Nama Barang",
@@ -44,6 +51,15 @@ export const columns = ({ categories, conditions, sources }: LookupColumnsProps)
     cell: (props): JSX.Element => {
       const id = String(props.row.getValue("source_id") ?? "");
       const name = sources?.find(src => src.id === id)?.name ?? id;
+      return <span class="capitalize">{name}</span>;
+    },
+  },
+  {
+    accessorKey: "location_id",
+    header: "Lokasi",
+    cell: (props): JSX.Element => {
+      const id = String(props.row.getValue("location_id") ?? "");
+      const name = locations?.find(loc => loc.id === id)?.name ?? id;
       return <span class="capitalize">{name}</span>;
     },
   },

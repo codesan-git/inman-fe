@@ -8,6 +8,7 @@ import {
   QueryClient,
   QueryClientProvider,
 } from '@tanstack/solid-query';
+import { ToastProvider } from "~/components/common/ToastContext";
 import { SidebarProvider } from '~/components/ui/sidebar';
 import CustomSidebar from './components/common/custom-sidebar';
 
@@ -110,9 +111,11 @@ const routes = [
 
 render(
   () => <QueryClientProvider client={queryClient}>
-    <Suspense fallback={<AppLoader />}>
-      <Router>{routes}</Router>
-    </Suspense>
+    <ToastProvider>
+      <Suspense fallback={<AppLoader />}>
+        <Router>{routes}</Router>
+      </Suspense>
+    </ToastProvider>
   </QueryClientProvider>,
   root!
 )

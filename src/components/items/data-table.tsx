@@ -1,4 +1,6 @@
-import { createSignal, For, createEffect } from "solid-js";
+import { createSignal, For, createEffect, createMemo } from "solid-js";
+import ItemsFilter from "./filter";
+import Exporter from "./exporter";
 import {
   createSolidTable,
   flexRender,
@@ -12,8 +14,6 @@ import {
 } from "@tanstack/solid-table";
 import { columns } from "./columns";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "~/components/ui/table";
-import { TextField, TextFieldInput } from "~/components/ui/text-field";
-import { Button } from "~/components/ui/button";
 import type { Item } from "~/types/item.types";
 
 type LookupProps = {
@@ -22,9 +22,26 @@ type LookupProps = {
   categories?: { id: string; name: string }[];
   conditions?: { id: string; name: string }[];
   sources?: { id: string; name: string }[];
+  locations?: { id: string; name: string }[];
 };
 
 export default function ItemsDataTable(props: LookupProps) {
+  // FILTER STATE (client-side)
+  const [filterNama, setFilterNama] = createSignal("");
+  const [filterKategori, setFilterKategori] = createSignal("");
+  const [filterKondisi, setFilterKondisi] = createSignal("");
+  const [filterAsal, setFilterAsal] = createSignal("");
+  const [filterLokasi, setFilterLokasi] = createSignal("");
+
+  // Filtered items (client-side)
+  const filteredItems = createMemo(() => props.items.filter(item => {
+    if (filterNama() && !item.name.toLowerCase().includes(filterNama().toLowerCase())) return false;
+    if (filterKategori() && item.category_id !== filterKategori()) return false;
+    if (filterKondisi() && item.condition_id !== filterKondisi()) return false;
+    if (filterAsal() && item.source_id !== filterAsal()) return false;
+    if (filterLokasi() && item.location_id !== filterLokasi()) return false;
+    return true;
+  }));
   const [sorting, setSorting] = createSignal<SortingState>([]);
   const [columnFilters, setColumnFilters] = createSignal<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = createSignal<VisibilityState>({});
@@ -39,12 +56,13 @@ export default function ItemsDataTable(props: LookupProps) {
 
   const table = createSolidTable<Item>({
     get data() {
-      return props.items;
+      return filteredItems();
     },
     columns: columns({
       categories: props.categories,
       conditions: props.conditions,
       sources: props.sources,
+      locations: props.locations,
     }),
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -67,14 +85,29 @@ export default function ItemsDataTable(props: LookupProps) {
 
   return (
     <div class="w-full">
-      <div class="flex items-center py-4">
-        <TextField
-          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-          onChange={(value) => table.getColumn("name")?.setFilterValue(value)}
-        >
-          <TextFieldInput placeholder="Filter nama barang..." class="max-w-sm" />
-        </TextField>
-      </div>
+      <Exporter
+        items={filteredItems()}
+        categories={props.categories}
+        conditions={props.conditions}
+        sources={props.sources}
+        locations={props.locations}
+      />
+      <ItemsFilter
+        filterNama={filterNama()}
+        setFilterNama={setFilterNama}
+        filterKategori={filterKategori()}
+        setFilterKategori={setFilterKategori}
+        filterKondisi={filterKondisi()}
+        setFilterKondisi={setFilterKondisi}
+        filterAsal={filterAsal()}
+        setFilterAsal={setFilterAsal}
+        filterLokasi={filterLokasi()}
+        setFilterLokasi={setFilterLokasi}
+        categories={props.categories}
+        conditions={props.conditions}
+        sources={props.sources}
+        locations={props.locations}
+      />
       <div class="rounded-md border">
         <Table>
           <TableHeader>

@@ -119,3 +119,10 @@ render(
   </QueryClientProvider>,
   root!
 )
+
+// Register service worker (only on HTTPS or localhost)
+if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost')) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js').catch(console.error);
+  });
+}

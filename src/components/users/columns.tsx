@@ -3,6 +3,8 @@ import type { ColumnDef } from "@tanstack/solid-table";
 import UserActionCell from "./UserActionCell";
 import { User } from "~/types/user.types";
 
+export type { User };
+
 export const columns: ColumnDef<User>[] = [
   {
     accessorKey: "name",

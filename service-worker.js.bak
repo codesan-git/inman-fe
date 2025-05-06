@@ -1,0 +1,13 @@
+self.addEventListener('install', event => {
+  self.skipWaiting();
+});
+
+// Inject manifest assets for precaching (VitePWA injectManifest)
+self.__WB_MANIFEST;
+
+self.addEventListener('activate', event => {
+  event.waitUntil(self.clients.claim());
+});
+
+// (Optional) Custom fetch logic can be handled by Workbox runtime, so you can remove manual cache fetch if not needed.
+// If you want to keep runtime cache, you can add Workbox runtime caching here.

@@ -6,11 +6,14 @@ const stats = [
 ];
 
 import InventoryDataTable from "~/components/inventory/data-table";
-import { useMe } from "~/hooks/useMe";
+import { useUser } from '../UserContext';
+import { Me } from '~/types/me.types';
 
 const Home = () => {
+  const user = useUser() as ReturnType<typeof useUser> & { data?: Me };
 
-  const user = useMe()
+  if (user.isLoading) return <div>Loading...</div>;
+  if (user.isError) return <div>Error loading user</div>;
 
   return (
     <div class="px-2 sm:px-4 md:px-8 py-4 w-full max-w-full mx-auto">

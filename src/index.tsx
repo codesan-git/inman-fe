@@ -13,7 +13,7 @@ import { SidebarProvider } from '~/components/ui/sidebar';
 import CustomSidebar from './components/common/custom-sidebar';
 
 import { useLocation } from "@solidjs/router";
-import { useMe } from './hooks/useMe';
+import { useUser } from './UserContext';
 import GuestRoute from './components/guest-route';
 import ProtectedRoute from './components/protected-route';
 import AppLoader from './components/common/AppLoader';
@@ -35,7 +35,7 @@ const LookupsConfig = lazy(() => import("./pages/lookups-config"));
 
 function Layout(props: ParentProps) {
   const location = useLocation();
-  const user = useMe();
+  const user = useUser();
   return (
     <SidebarProvider>
       <div class="flex h-screen w-full">
@@ -109,16 +109,21 @@ const routes = [
   }
 ]
 
+import { UserProvider } from './UserContext';
+
 render(
   () => <QueryClientProvider client={queryClient}>
-    <ToastProvider>
-      <Suspense fallback={<AppLoader />}>
-        <Router>{routes}</Router>
-      </Suspense>
-    </ToastProvider>
+    <UserProvider>
+      <ToastProvider>
+        <Suspense fallback={<AppLoader />}>
+          <Router>{routes}</Router>
+        </Suspense>
+      </ToastProvider>
+    </UserProvider>
   </QueryClientProvider>,
   root!
 )
+
 
 // Register service worker (only on HTTPS or localhost)
 if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost')) {

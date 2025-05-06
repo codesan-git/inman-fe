@@ -21,11 +21,14 @@ export const useCheckUser = (onSuccess?: (data: CheckUserResponse) => void, onEr
 };
 
 export const useLogin = (onSuccess?: (data: LoginResponse) => void, onError?: (err: unknown) => void) => {
+  const queryClient = useQueryClient();
   return useMutation(() => ({
     mutationKey: ["login-user"],
     mutationFn: async ({ name, password }: { name: string; password: string }) => {
       try {
         const res = await axios.post(`${apiUrl}/login`, { name, password }, { withCredentials: true });
+        // Tambah: invalidate cache user
+        await queryClient.invalidateQueries({ queryKey: ["me"] });
         if (onSuccess) onSuccess(res.data);
         return res.data;
       } catch (err) {

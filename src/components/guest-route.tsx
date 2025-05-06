@@ -1,6 +1,6 @@
 import { useNavigate } from "@solidjs/router";
-import { createEffect, JSX, Show } from "solid-js";
-import { useMe } from "~/hooks/useMe";
+import { createEffect, JSX, Show, Switch, Match } from "solid-js";
+import { useUser } from '../UserContext';
 import AppLoader from "./common/AppLoader";
 
 type GuestRouteProps = {
@@ -8,7 +8,7 @@ type GuestRouteProps = {
 };
 
 export default function GuestRoute(props: GuestRouteProps) {
-  const user = useMe();
+  const user = useUser();
   const navigate = useNavigate();
 
   createEffect(() => {
@@ -18,8 +18,17 @@ export default function GuestRoute(props: GuestRouteProps) {
   });
 
   return (
-    <Show when={!user.isLoading && !user.data} fallback={<AppLoader />}>
-      {props.children}
-    </Show>
+    <Switch>
+      <Match when={user.isLoading}>
+        <AppLoader />
+      </Match>
+      <Match when={user.data}>
+        {/* Sudah login, redirect pakai navigate (side effect) */}
+        <></>
+      </Match>
+      <Match when={!user.data && !user.isLoading}>
+        {props.children}
+      </Match>
+    </Switch>
   );
 }

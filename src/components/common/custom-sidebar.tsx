@@ -1,6 +1,6 @@
 import { createSignal, Show } from "solid-js";
 import { A, useLocation } from "@solidjs/router";
-import { useMe } from "~/hooks/useMe";
+import { useUser } from '../../UserContext';
 import { useLogout } from "~/hooks/useAuth";
 
 const menuItems = [
@@ -15,7 +15,7 @@ const menuItems = [
 export default function CustomSidebar() {
   const [open, setOpen] = createSignal(false);
   const location = useLocation();
-  const user = useMe();
+  const user = useUser();
   const { logout } = useLogout();
 
   return (

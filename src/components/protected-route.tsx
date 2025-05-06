@@ -1,7 +1,7 @@
 import { useNavigate } from "@solidjs/router";
 import { createEffect, JSX } from "solid-js";
 import { Show } from "solid-js";
-import { useMe } from "~/hooks/useMe";
+import { useUser } from '../UserContext';
 
 type ProtectedRouteProps = {
   children: JSX.Element;
@@ -9,7 +9,7 @@ type ProtectedRouteProps = {
 
 
 export default function ProtectedRoute(props: ProtectedRouteProps) {
-  const user = useMe();
+  const user = useUser();
   const navigate = useNavigate();
 
   createEffect(() => {

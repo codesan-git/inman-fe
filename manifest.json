@@ -1,6 +1,6 @@
 {
-  "name": "Actisol Inventory",
-  "short_name": "Actisol",
+  "name": "InMan Umar bin Khaththab",
+  "short_name": "InMan",
   "description": "Aplikasi Inventaris Masjid berbasis Solid.js",
   "start_url": ".",
   "display": "standalone",

@@ -21,18 +21,19 @@ export default defineConfig({
       manifest: {
         name: 'InMan',
         short_name: 'InMan',
+        description: 'Inventory Management',
         start_url: '/',
         display: 'standalone',
-        theme_color: '#ffffff',
+        theme_color: '#2563eb',
         background_color: '#ffffff',
         icons: [
           {
-            src: '/icons/icon-192x192.png',
+            src: '/Yuba Logo 01.png',
             sizes: '192x192',
             type: 'image/png',
           },
           {
-            src: '/icons/icon-512x512.png',
+            src: '/Yuba Logo 01.png',
             sizes: '512x512',
             type: 'image/png',
           },

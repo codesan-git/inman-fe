@@ -53,6 +53,15 @@ export default function ItemsPage() {
     <div class="p-8 space-y-6">
       <div class="flex items-center justify-between">
         <h1 class="text-2xl font-bold text-sidebar">Manajemen Inventaris</h1>
+        <a 
+          href="/items/create" 
+          class="px-4 py-2 bg-primary text-white rounded-md shadow hover:bg-blue-600 transition-colors flex items-center gap-2"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+          </svg>
+          Tambah Barang (dengan Foto)
+        </a>
       </div>
       <form onSubmit={handleCreate} class="bg-white rounded-lg shadow p-6 border border-gray-100 grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
         <div>

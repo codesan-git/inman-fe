@@ -4,6 +4,7 @@ import { useItemDetail, useUpdateItem } from "~/hooks/useItems";
 import { useLocations, useCategories, useConditions, useSources } from "~/hooks/useLookups";
 import type { Location } from "~/types/lookup.types";
 import type { UpdateItem } from "~/types/item.types";
+import ImageUpload from "~/components/items/image-upload";
 
 import { useToast } from "~/components/common/ToastContext";
 
@@ -70,6 +71,12 @@ export default function ItemDetailPage() {
     const target = e.target as HTMLInputElement | HTMLSelectElement;
     setEditData(prev => ({ ...prev, [target.name]: target.type === 'number' ? Number(target.value) : target.value }));
   }
+  
+  function handleImageUploaded(url: string) {
+    setDirty(true);
+    setEditData(prev => ({ ...prev, photo_url: url }));
+  }
+  
   function handleEditSubmit(e: Event) {
     e.preventDefault();
     updateItem.mutate({ id: params.id, data: editData() });
@@ -124,10 +131,13 @@ export default function ItemDetailPage() {
                     ))}
                   </select>
                 </div>
-                <div>
-                  <label class="font-semibold block mb-1">Photo URL</label>
-                  <input name="photo_url" class="border rounded text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2 w-full" value={editData().photo_url ?? ''} onInput={handleEditChange} />
-                </div>
+                
+                {/* Komponen Upload Gambar */}
+                <ImageUpload 
+                  initialValue={editData().photo_url || undefined} 
+                  onImageUploaded={handleImageUploaded} 
+                />
+                {/* Field photo_url sudah digantikan dengan komponen ImageUpload di atas */}
                 <div>
                   <label class="font-semibold block mb-1">Asal</label>
                   <select name="source_id" class="border rounded text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2 w-full" value={editData().source_id ?? ''} onInput={handleEditChange} required>

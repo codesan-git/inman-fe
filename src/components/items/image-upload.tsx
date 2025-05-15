@@ -3,8 +3,10 @@ import { apiUrl } from "~/hooks/apiUrl";
 import { useToast } from "~/components/common/ToastContext";
 
 type ImageUploadProps = {
+  itemId?: string; // ID item yang akan diupdate foto (opsional untuk create item)
   initialValue?: string;
   onImageUploaded: (url: string) => void;
+  onImageSelected?: (file: File) => void; // Callback untuk menyimpan file gambar sementara
 };
 
 export default function ImageUpload(props: ImageUploadProps) {
@@ -41,12 +43,21 @@ export default function ImageUpload(props: ImageUploadProps) {
     };
     reader.readAsDataURL(file);
     
+    // Jika ada callback onImageSelected, panggil untuk menyimpan file sementara
+    // Ini digunakan untuk create item, di mana upload dilakukan setelah item dibuat
+    if (props.onImageSelected && !props.itemId) {
+      console.log('Menyimpan file gambar sementara untuk upload nanti');
+      props.onImageSelected(file);
+      return; // Tidak perlu upload sekarang, akan dilakukan setelah item dibuat
+    }
+    
+    // Jika ada itemId, lanjutkan dengan upload langsung
     // Upload file
     setIsUploading(true);
     setError(null);
     
     try {
-      console.log('Memulai upload gambar ke:', `${apiUrl}/upload`);
+      console.log('Memulai upload gambar ke:', props.itemId ? `${apiUrl}/upload/${props.itemId}/upload-image` : `${apiUrl}/upload`);
       
       // Dapatkan token dari localStorage atau cookie jika ada
       const token = localStorage.getItem('token') || document.cookie.split('; ')
@@ -63,8 +74,15 @@ export default function ImageUpload(props: ImageUploadProps) {
       
       console.log('Mengirim request dengan headers:', headers);
       
-      const response = await fetch(`${apiUrl}/upload`, {
-        method: 'POST',
+      // Tentukan endpoint berdasarkan ketersediaan itemId
+      const uploadUrl = props.itemId
+        ? `${apiUrl}/upload/${props.itemId}/upload-image` // Update item yang sudah ada
+        : `${apiUrl}/upload`; // Upload gambar baru tanpa item ID
+      
+      console.log('Menggunakan endpoint upload:', uploadUrl);
+      
+      const response = await fetch(uploadUrl, {
+        method: props.itemId ? 'PATCH' : 'POST',
         headers,
         body: formData,
         credentials: 'include',
@@ -82,11 +100,30 @@ export default function ImageUpload(props: ImageUploadProps) {
       const data = await response.json();
       console.log('Upload berhasil, data:', data);
       
-      if (!data.url) {
-        throw new Error('URL gambar tidak ditemukan dalam respons');
+      // Ekstrak URL gambar dari respons berdasarkan format respons
+      let photoUrl = '';
+      
+      if (props.itemId) {
+        // Untuk update item, respons berisi data item lengkap dengan photo_url
+        photoUrl = data.photo_url;
+        if (!photoUrl) {
+          throw new Error('URL gambar tidak ditemukan dalam respons update item');
+        }
+      } else {
+        // Untuk upload biasa, respons berisi URL langsung atau dalam field url
+        photoUrl = data.url || data;
+        if (typeof photoUrl === 'object') {
+          // Jika respons adalah objek kompleks, coba ambil URL dari properti yang umum
+          photoUrl = data.url || data.file_url || data.photo_url || data.path || '';
+        }
+        
+        if (!photoUrl) {
+          throw new Error('URL gambar tidak ditemukan dalam respons upload');
+        }
       }
       
-      props.onImageUploaded(data.url);
+      console.log('Extracted photo URL:', photoUrl);
+      props.onImageUploaded(photoUrl);
       showToast('Gambar berhasil diupload', 'success');
     } catch (err) {
       console.error('Error uploading image:', err);

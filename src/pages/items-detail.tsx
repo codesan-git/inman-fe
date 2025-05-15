@@ -8,6 +8,24 @@ import ImageUpload from "~/components/items/image-upload";
 
 import { useToast } from "~/components/common/ToastContext";
 
+// Fungsi untuk memformat URL foto
+function formatPhotoUrl(url: string): string {
+  if (!url) return "";
+  
+  // Jika URL sudah lengkap (dimulai dengan http/https), gunakan apa adanya
+  if (url.startsWith("http")) return url;
+  
+  // Jika URL hanya berisi ID file Google Drive, gunakan endpoint proxy lokal
+  if (url.match(/^[a-zA-Z0-9_-]+$/)) {
+    // Gunakan endpoint proxy yang sudah ada di backend
+    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8080";
+    return `${apiUrl}/api/upload/proxy/drive/${url}`;
+  }
+  
+  // Jika format lain, kembalikan apa adanya
+  return url;
+}
+
 export default function ItemDetailPage() {
   const { showToast } = useToast();
   const params = useParams<{ id: string }>();
@@ -134,6 +152,7 @@ export default function ItemDetailPage() {
                 
                 {/* Komponen Upload Gambar */}
                 <ImageUpload 
+                  itemId={params.id}
                   initialValue={editData().photo_url || undefined} 
                   onImageUploaded={handleImageUploaded} 
                 />
@@ -202,7 +221,7 @@ export default function ItemDetailPage() {
                 <span class="font-semibold block">Foto Barang:</span>
                 <Show when={!!itemQuery.data?.photo_url && itemQuery.data.photo_url !== ""} fallback={<div class="w-36 h-36 flex items-center justify-center bg-gray-100 rounded-lg border text-gray-400 text-xs">Tidak ada foto</div>}>
                   <img
-                    src={itemQuery.data?.photo_url || ""}
+                    src={formatPhotoUrl(itemQuery.data?.photo_url || "")}
                     alt={itemQuery.data?.name || "Foto Barang"}
                     class="w-36 h-36 object-cover rounded-lg border shadow-sm cursor-zoom-in transition-transform duration-200 hover:scale-105"
                     loading="lazy"
@@ -219,13 +238,15 @@ export default function ItemDetailPage() {
                       modal.style.justifyContent = 'center';
                       modal.style.zIndex = '9999';
                       modal.onclick = () => document.body.removeChild(modal);
+                      
                       const img = document.createElement('img');
-                      img.src = itemQuery.data?.photo_url || "";
+                      img.src = formatPhotoUrl(itemQuery.data?.photo_url || "");
                       img.alt = itemQuery.data?.name || 'Foto Barang';
                       img.style.maxWidth = '90vw';
                       img.style.maxHeight = '80vh';
                       img.style.borderRadius = '1rem';
                       img.style.boxShadow = '0 4px 24px #0008';
+                      
                       modal.appendChild(img);
                       document.body.appendChild(modal);
                     }}

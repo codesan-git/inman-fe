@@ -9,6 +9,7 @@ type ItemFormProps = {
   isSubmitting: boolean;
   submitLabel?: string;
   onCancel?: () => void;
+  onImageSelected?: (file: File) => void; // Callback untuk menyimpan file gambar sementara
 };
 
 export default function ItemForm(props: ItemFormProps) {
@@ -39,6 +40,13 @@ export default function ItemForm(props: ItemFormProps) {
   
   const handleImageUploaded = (url: string) => {
     setFormData(prev => ({ ...prev, photo_url: url }));
+  };
+  
+  // Handler untuk meneruskan file gambar ke parent component jika ada onImageSelected
+  const handleImageSelected = (file: File) => {
+    if (props.onImageSelected) {
+      props.onImageSelected(file);
+    }
   };
   
   const handleSubmit = (e: Event) => {
@@ -127,8 +135,10 @@ export default function ItemForm(props: ItemFormProps) {
       
       {/* Komponen Upload Gambar */}
       <ImageUpload 
+        itemId={props.initialData?.id} // Kirim item ID jika ini adalah update item
         initialValue={formData().photo_url || undefined} 
-        onImageUploaded={handleImageUploaded} 
+        onImageUploaded={handleImageUploaded}
+        onImageSelected={handleImageSelected} // Teruskan callback untuk menyimpan file sementara
       />
       
       <div>

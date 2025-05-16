@@ -39,6 +39,8 @@ export default function ItemDetailPage() {
 
   // --- Inline Edit State ---
   const [editMode, setEditMode] = createSignal(false);
+  const [tempImageFile, setTempImageFile] = createSignal<File | null>(null);
+  const [isUploadingImage, setIsUploadingImage] = createSignal(false);
 
   // Toast for update success/error
   createEffect(() => {
@@ -90,6 +92,74 @@ export default function ItemDetailPage() {
     setEditData(prev => ({ ...prev, [target.name]: target.type === 'number' ? Number(target.value) : target.value }));
   }
   
+  // Fungsi untuk menyimpan file gambar sementara
+  function handleImageSelected(file: File) {
+    console.log('File gambar disimpan sementara:', file.name);
+    setTempImageFile(file);
+    setDirty(true);
+    
+    // Tampilkan preview dengan FileReader
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      // Simpan URL data untuk preview saja, bukan untuk upload
+      const previewUrl = e.target?.result as string;
+      setEditData(prev => ({ ...prev, photo_url: previewUrl }));
+    };
+    reader.readAsDataURL(file);
+  }
+  
+  // Fungsi untuk mengupload gambar setelah item diupdate
+  async function uploadImageAfterUpdate(itemId: string, file: File) {
+    setIsUploadingImage(true);
+    
+    try {
+      console.log('Mengupload gambar untuk item dengan ID:', itemId);
+      
+      // Dapatkan token dari localStorage atau cookie jika ada
+      const token = localStorage.getItem('token') || document.cookie.split('; ')
+        .find(row => row.startsWith('token='))?.split('=')[1];
+      
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const headers: HeadersInit = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
+      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8080";
+      
+      // Gunakan endpoint untuk upload gambar item
+      const response = await fetch(`${apiUrl}/upload/${itemId}/upload-image`, {
+        method: 'PATCH',
+        headers,
+        body: formData,
+        credentials: 'include',
+        mode: 'cors',
+      });
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Upload gambar gagal: ${response.statusText}. ${errorText}`);
+      }
+      
+      const data = await response.json();
+      console.log('Upload gambar berhasil:', data);
+      
+      // Refresh data item untuk mendapatkan URL gambar yang baru
+      itemQuery.refetch && itemQuery.refetch();
+      
+      showToast("Gambar berhasil diupload", "success");
+    } catch (err) {
+      console.error('Error uploading image after update:', err);
+      showToast(err instanceof Error ? err.message : 'Gagal upload gambar', "error");
+    } finally {
+      setIsUploadingImage(false);
+      setTempImageFile(null); // Reset file gambar sementara
+    }
+  }
+  
+  // Fungsi ini tidak lagi digunakan karena kita tidak langsung upload gambar
   function handleImageUploaded(url: string) {
     setDirty(true);
     setEditData(prev => ({ ...prev, photo_url: url }));
@@ -97,7 +167,25 @@ export default function ItemDetailPage() {
   
   function handleEditSubmit(e: Event) {
     e.preventDefault();
-    updateItem.mutate({ id: params.id, data: editData() });
+    
+    // Simpan file gambar sementara jika ada
+    const imageFile = tempImageFile();
+    
+    // Hapus photo_url dari data jika itu adalah URL data (preview)
+    const itemData = { ...editData() };
+    if (itemData.photo_url && itemData.photo_url.startsWith('data:')) {
+      // Jika URL adalah data URL (dari FileReader), hapus dari data update
+      delete itemData.photo_url;
+    }
+    
+    updateItem.mutate({ id: params.id, data: itemData }, {
+      onSuccess: async () => {
+        // Jika ada file gambar, upload setelah item diupdate
+        if (imageFile) {
+          await uploadImageAfterUpdate(params.id, imageFile);
+        }
+      }
+    });
   }
 
   return (
@@ -152,8 +240,8 @@ export default function ItemDetailPage() {
                 
                 {/* Komponen Upload Gambar */}
                 <ImageUpload 
-                  itemId={params.id}
                   initialValue={editData().photo_url || undefined} 
+                  onImageSelected={handleImageSelected} 
                   onImageUploaded={handleImageUploaded} 
                 />
                 {/* Field photo_url sudah digantikan dengan komponen ImageUpload di atas */}
@@ -176,8 +264,22 @@ export default function ItemDetailPage() {
                 </div>
               </div>
               <div class="flex gap-2 mt-6 justify-center">
-                <button type="submit" class="bg-primary text-white px-4 py-2 rounded text-sm font-semibold shadow" disabled={updateItem.status === 'pending'}>Simpan</button>
-                <button type="button" class="bg-gray-300 px-4 py-2 rounded text-sm font-semibold" onClick={() => setEditMode(false)}>Batal</button>
+                <button 
+                  type="submit" 
+                  class="bg-primary text-white px-4 py-2 rounded text-sm font-semibold shadow" 
+                  disabled={updateItem.status === 'pending' || isUploadingImage()}
+                >
+                  {updateItem.status === 'pending' ? 'Menyimpan...' : 
+                   isUploadingImage() ? 'Mengupload Gambar...' : 'Simpan'}
+                </button>
+                <button 
+                  type="button" 
+                  class="bg-gray-300 px-4 py-2 rounded text-sm font-semibold" 
+                  onClick={() => setEditMode(false)}
+                  disabled={updateItem.status === 'pending' || isUploadingImage()}
+                >
+                  Batal
+                </button>
               </div>
 
             </form>

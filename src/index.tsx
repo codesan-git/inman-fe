@@ -27,6 +27,7 @@ const Auth = lazy(() => import("./pages/auth"));
 const Items = lazy(() => import("./pages/items"));
 const ItemDetail = lazy(() => import("./pages/items-detail"));
 const ItemCreate = lazy(() => import("./pages/items-create"));
+const ItemLogs = lazy(() => import("./pages/items-logs"));
 const AboutPage = lazy(() => import("./pages/about"));
 const Register = lazy(() => import("./pages/register"));
 const Dashboard = lazy(() => import("./pages/dashboard"));
@@ -107,6 +108,10 @@ const routes = [
   {
     path: "/items/:id",
     component: () => <ProtectedRoute><LayoutWrapper Component={<ItemDetail />} /></ProtectedRoute>
+  },
+  {
+    path: "/items/:id/logs",
+    component: () => <ProtectedRoute><LayoutWrapper Component={<ItemLogs />} /></ProtectedRoute>
   },
   {
     path: "/logs",

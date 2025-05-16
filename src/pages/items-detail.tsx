@@ -5,26 +5,12 @@ import { useLocations, useCategories, useConditions, useSources } from "~/hooks/
 import type { Location } from "~/types/lookup.types";
 import type { UpdateItem } from "~/types/item.types";
 import ImageUpload from "~/components/items/image-upload";
+import { formatPhotoUrl } from "~/utils/formatters";
+import { useUploadItemImage, useUpdateItemWithImage } from "~/hooks/useImageUpload";
 
 import { useToast } from "~/components/common/ToastContext";
 
-// Fungsi untuk memformat URL foto
-function formatPhotoUrl(url: string): string {
-  if (!url) return "";
-  
-  // Jika URL sudah lengkap (dimulai dengan http/https), gunakan apa adanya
-  if (url.startsWith("http")) return url;
-  
-  // Jika URL hanya berisi ID file Google Drive, gunakan endpoint proxy lokal
-  if (url.match(/^[a-zA-Z0-9_-]+$/)) {
-    // Gunakan endpoint proxy yang sudah ada di backend
-    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8080";
-    return `${apiUrl}/api/upload/proxy/drive/${url}`;
-  }
-  
-  // Jika format lain, kembalikan apa adanya
-  return url;
-}
+// Fungsi formatPhotoUrl sudah diimpor dari utils/formatters
 
 export default function ItemDetailPage() {
   const { showToast } = useToast();
@@ -41,6 +27,10 @@ export default function ItemDetailPage() {
   const [editMode, setEditMode] = createSignal(false);
   const [tempImageFile, setTempImageFile] = createSignal<File | null>(null);
   const [isUploadingImage, setIsUploadingImage] = createSignal(false);
+  
+  // Mutation untuk upload gambar
+  const uploadItemImage = useUploadItemImage();
+  const updateItemWithImage = useUpdateItemWithImage();
 
   // Toast for update success/error
   createEffect(() => {
@@ -108,51 +98,26 @@ export default function ItemDetailPage() {
     reader.readAsDataURL(file);
   }
   
-  // Fungsi untuk mengupload gambar setelah item diupdate
+  // Fungsi untuk mengupload gambar setelah item diupdate menggunakan hook
   async function uploadImageAfterUpdate(itemId: string, file: File) {
     setIsUploadingImage(true);
     
     try {
       console.log('Mengupload gambar untuk item dengan ID:', itemId);
       
-      // Dapatkan token dari localStorage atau cookie jika ada
-      const token = localStorage.getItem('token') || document.cookie.split('; ')
-        .find(row => row.startsWith('token='))?.split('=')[1];
-      
-      const formData = new FormData();
-      formData.append('file', file);
-      
-      const headers: HeadersInit = {};
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-      
-      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8080";
-      
-      // Gunakan endpoint untuk upload gambar item
-      const response = await fetch(`${apiUrl}/upload/${itemId}/upload-image`, {
-        method: 'PATCH',
-        headers,
-        body: formData,
-        credentials: 'include',
-        mode: 'cors',
-      });
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Upload gambar gagal: ${response.statusText}. ${errorText}`);
-      }
-      
-      const data = await response.json();
-      console.log('Upload gambar berhasil:', data);
+      // Gunakan uploadItemImage untuk upload gambar
+      await uploadItemImage.mutateAsync({ itemId, file });
+      console.log('Upload gambar berhasil');
       
       // Refresh data item untuk mendapatkan URL gambar yang baru
       itemQuery.refetch && itemQuery.refetch();
       
       showToast("Gambar berhasil diupload", "success");
+      return true; // Mengembalikan true jika berhasil
     } catch (err) {
       console.error('Error uploading image after update:', err);
       showToast(err instanceof Error ? err.message : 'Gagal upload gambar', "error");
+      return false; // Mengembalikan false jika gagal
     } finally {
       setIsUploadingImage(false);
       setTempImageFile(null); // Reset file gambar sementara
@@ -165,27 +130,57 @@ export default function ItemDetailPage() {
     setEditData(prev => ({ ...prev, photo_url: url }));
   }
   
-  function handleEditSubmit(e: Event) {
+  async function handleEditSubmit(e: Event) {
     e.preventDefault();
-    
+  
     // Simpan file gambar sementara jika ada
     const imageFile = tempImageFile();
-    
+  
     // Hapus photo_url dari data jika itu adalah URL data (preview)
     const itemData = { ...editData() };
     if (itemData.photo_url && itemData.photo_url.startsWith('data:')) {
       // Jika URL adalah data URL (dari FileReader), hapus dari data update
       delete itemData.photo_url;
     }
+  
+    try {
+      setIsUploadingImage(true);
     
-    updateItem.mutate({ id: params.id, data: itemData }, {
-      onSuccess: async () => {
-        // Jika ada file gambar, upload setelah item diupdate
-        if (imageFile) {
-          await uploadImageAfterUpdate(params.id, imageFile);
-        }
+      // Jika ada file gambar, gunakan updateItemWithImage untuk update data dan upload gambar dalam satu transaksi
+      if (imageFile) {
+        console.log('Melakukan update data item dan upload gambar dalam satu transaksi');
+      
+        // Gunakan updateItemWithImage untuk menangani keduanya dalam satu transaksi
+        await updateItemWithImage.mutateAsync({
+          itemId: params.id,
+          file: imageFile,
+          itemData: Object.keys(itemData).length > 0 ? itemData : undefined
+        });
+      
+        console.log('Update data dan upload gambar berhasil dalam satu transaksi');
+      } else {
+        // Jika tidak ada file gambar, cukup update item saja
+        await updateItem.mutateAsync({ id: params.id, data: itemData });
+        console.log('Item berhasil diupdate tanpa gambar');
       }
-    });
+    
+      // Jika sampai di sini berarti semua proses berhasil
+      console.log('Semua proses update dan upload selesai dengan sukses');
+      showToast("Data berhasil diupdate", "success");
+    
+      // Refresh data item untuk mendapatkan URL gambar yang baru
+      await itemQuery.refetch();
+    
+      // Tutup modal hanya jika semua proses berhasil
+      setEditMode(false);
+      setIsUploadingImage(false);
+      setTempImageFile(null); // Reset file gambar sementara
+    } catch (err) {
+      console.error('Error dalam proses update:', err);
+      showToast(err instanceof Error ? err.message : 'Gagal update data', "error");
+      setIsUploadingImage(false);
+      // Modal tetap terbuka jika ada error
+    }
   }
 
   return (
@@ -385,7 +380,18 @@ export default function ItemDetailPage() {
               <div>
                 <span class="font-semibold">Dibuat:</span> {itemQuery.data?.created_at ? new Date(itemQuery.data.created_at).toLocaleString() : ""}
               </div>
-              <button class="mt-2 bg-primary text-white px-4 py-2 rounded" onClick={() => setEditMode(true)}>Edit</button>
+              <div class="flex flex-wrap gap-2 mt-4">
+                <button class="bg-primary text-white px-4 py-2 rounded" onClick={() => setEditMode(true)}>Edit</button>
+                <button 
+                  class="bg-gray-700 text-white px-4 py-2 rounded flex items-center gap-1"
+                  onClick={() => navigate(`/items/${params.id}/logs`)}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                  Lihat Log
+                </button>
+              </div>
             </div>
           </Match>
         </Switch>

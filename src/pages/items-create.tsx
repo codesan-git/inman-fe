@@ -4,7 +4,8 @@ import ItemForm from "~/components/items/item-form";
 import { useCreateItem } from "~/hooks/useItems";
 import { useToast } from "~/components/common/ToastContext";
 import type { NewItem } from "~/types/item.types";
-import { apiUrl } from "~/hooks/apiUrl";
+import { formatPhotoUrl } from "~/utils/formatters";
+import { useUploadItemImage } from "~/hooks/useImageUpload";
 
 export default function CreateItemPage() {
   const navigate = useNavigate();
@@ -14,47 +15,25 @@ export default function CreateItemPage() {
   const [tempImageFile, setTempImageFile] = createSignal<File | null>(null);
   const [isUploadingImage, setIsUploadingImage] = createSignal(false);
   
+  // Mutation untuk upload gambar
+  const uploadItemImage = useUploadItemImage();
+  
   // Fungsi untuk menyimpan file gambar sementara
   const handleImageSelected = (file: File) => {
     console.log('File gambar disimpan sementara:', file.name);
     setTempImageFile(file);
   };
   
-  // Fungsi untuk upload gambar setelah item dibuat
+  // Fungsi untuk upload gambar setelah item dibuat menggunakan hook
   const uploadImageAfterCreate = async (itemId: string, file: File) => {
     setIsUploadingImage(true);
     
     try {
       console.log('Mengupload gambar untuk item baru dengan ID:', itemId);
       
-      // Dapatkan token dari localStorage atau cookie jika ada
-      const token = localStorage.getItem('token') || document.cookie.split('; ')
-        .find(row => row.startsWith('token='))?.split('=')[1];
-      
-      const formData = new FormData();
-      formData.append('file', file);
-      
-      const headers: HeadersInit = {};
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-      
-      // Gunakan endpoint untuk upload gambar item
-      const response = await fetch(`${apiUrl}/upload/${itemId}/upload-image`, {
-        method: 'PATCH',
-        headers,
-        body: formData,
-        credentials: 'include',
-        mode: 'cors',
-      });
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Upload gambar gagal: ${response.statusText}. ${errorText}`);
-      }
-      
-      const data = await response.json();
-      console.log('Upload gambar berhasil:', data);
+      // Gunakan hook uploadItemImage untuk mengupload gambar
+      const photoUrl = await uploadItemImage.mutateAsync({ file, itemId });
+      console.log('Upload gambar berhasil, URL:', photoUrl);
       
       showToast("Gambar berhasil diupload", "success");
     } catch (err) {

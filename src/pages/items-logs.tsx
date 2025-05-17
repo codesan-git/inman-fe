@@ -275,7 +275,35 @@ export default function ItemLogsPage() {
                 <img 
                   src={formatPhotoUrl(itemQuery.data?.photo_url || '')} 
                   alt={itemQuery.data?.name} 
-                  class="max-w-xs rounded-lg shadow-sm" 
+                  class="max-w-xs rounded-lg shadow-sm cursor-pointer hover:opacity-90" 
+                  onClick={e => {
+                    e.preventDefault();
+                    // Buat modal untuk menampilkan gambar dalam ukuran penuh
+                    const modal = document.createElement('div');
+                    modal.className = 'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4';
+                    
+                    // Buat container untuk gambar
+                    const imgContainer = document.createElement('div');
+                    imgContainer.className = 'relative max-w-4xl max-h-screen';
+                    
+                    // Buat gambar
+                    const img = document.createElement('img');
+                    img.className = 'max-w-full max-h-[90vh] object-contain';
+                    img.src = formatPhotoUrl(itemQuery.data?.photo_url || "");
+                    img.alt = itemQuery.data?.name || "Item image";
+                    
+                    // Tambahkan gambar ke container
+                    imgContainer.appendChild(img);
+                    
+                    // Tambahkan container ke modal
+                    modal.appendChild(imgContainer);
+                    
+                    // Tambahkan event listener untuk menutup modal saat diklik
+                    modal.onclick = () => document.body.removeChild(modal);
+                    
+                    // Tambahkan modal ke body
+                    document.body.appendChild(modal);
+                  }}
                 />
               </div>
             </Show>
@@ -325,7 +353,35 @@ export default function ItemLogsPage() {
                                   <img 
                                     src={formatPhotoUrl(change.photo_url)} 
                                     alt="Item photo" 
-                                    class="max-w-xs h-32 object-cover rounded-md shadow-sm" 
+                                    class="max-w-xs h-32 object-cover rounded-md shadow-sm cursor-pointer hover:opacity-90" 
+                                    onClick={e => {
+                                      e.preventDefault();
+                                      // Buat modal untuk menampilkan gambar dalam ukuran penuh
+                                      const modal = document.createElement('div');
+                                      modal.className = 'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4';
+                                      
+                                      // Buat container untuk gambar
+                                      const imgContainer = document.createElement('div');
+                                      imgContainer.className = 'relative max-w-4xl max-h-screen';
+                                      
+                                      // Buat gambar
+                                      const img = document.createElement('img');
+                                      img.className = 'max-w-full max-h-[90vh] object-contain';
+                                      img.src = formatPhotoUrl(change.photo_url || "");
+                                      img.alt = "Item photo";
+                                      
+                                      // Tambahkan gambar ke container
+                                      imgContainer.appendChild(img);
+                                      
+                                      // Tambahkan container ke modal
+                                      modal.appendChild(imgContainer);
+                                      
+                                      // Tambahkan event listener untuk menutup modal saat diklik
+                                      modal.onclick = () => document.body.removeChild(modal);
+                                      
+                                      // Tambahkan modal ke body
+                                      document.body.appendChild(modal);
+                                    }}
                                   />
                                 </div>
                               )}

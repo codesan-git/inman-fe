@@ -11,6 +11,7 @@ export type Item = {
   source_id: UUID;
   donor_id?: UUID | null;
   procurement_id?: UUID | null;
+  value?: string | null;
   created_at: string;
 };
 

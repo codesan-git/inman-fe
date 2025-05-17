@@ -61,3 +61,54 @@ export function formatDate(dateString: string, format: 'full' | 'date' | 'time' 
     return dateString;
   }
 }
+
+/**
+ * Fungsi untuk memformat nilai uang dalam format Rupiah
+ * @param value Nilai yang akan diformat (string angka atau number)
+ * @param withSymbol Menampilkan simbol Rp di depan nilai (default: true)
+ * @returns String nilai yang sudah diformat dengan pemisah ribuan
+ */
+export function formatRupiah(value: string | number | undefined | null, withSymbol: boolean = true): string {
+  if (value === undefined || value === null || value === '') return '';
+  
+  // Konversi ke string dan pastikan hanya berisi angka
+  const numericValue = String(value).replace(/[^0-9]/g, '');
+  
+  // Format dengan pemisah ribuan (menggunakan titik)
+  const formattedValue = numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  
+  // Tambahkan simbol Rp jika diperlukan
+  return withSymbol ? `Rp ${formattedValue}` : formattedValue;
+}
+
+/**
+ * Fungsi untuk memformat input nilai Rupiah secara real-time
+ * @param input Element input yang nilainya akan diformat
+ * @returns String nilai yang sudah difilter (hanya angka)
+ */
+export function formatRupiahInput(input: HTMLInputElement): string {
+  // Simpan posisi kursor
+  const start = input.selectionStart;
+  const end = input.selectionEnd;
+  const length = input.value.length;
+  
+  // Filter hanya angka
+  const sanitizedValue = input.value.replace(/[^0-9]/g, '');
+  
+  // Format dengan pemisah ribuan (menggunakan titik)
+  const formattedValue = sanitizedValue.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  
+  // Update nilai input dengan format baru
+  input.value = formattedValue;
+  
+  // Hitung perubahan panjang untuk menyesuaikan posisi kursor
+  const newLength = input.value.length;
+  const diff = newLength - length;
+  
+  // Kembalikan posisi kursor yang disesuaikan
+  if (start !== null && end !== null) {
+    input.setSelectionRange(start + diff, end + diff);
+  }
+  
+  return sanitizedValue; // Kembalikan nilai tanpa format untuk disimpan di state
+}

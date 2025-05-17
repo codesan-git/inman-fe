@@ -5,7 +5,7 @@ import { useLocations, useCategories, useConditions, useSources } from "~/hooks/
 import type { Location } from "~/types/lookup.types";
 import type { UpdateItem } from "~/types/item.types";
 import ImageUpload from "~/components/items/image-upload";
-import { formatPhotoUrl } from "~/utils/formatters";
+import { formatPhotoUrl, formatRupiah, formatRupiahInput } from "~/utils/formatters";
 import { useUploadItemImage, useUpdateItemWithImage } from "~/hooks/useImageUpload";
 
 import { useToast } from "~/components/common/ToastContext";
@@ -250,12 +250,38 @@ export default function ItemDetailPage() {
                   </select>
                 </div>
                 <div>
-                  <label class="font-semibold block mb-1">Donor (UUID)</label>
+                  <label class="block text-xs sm:text-sm font-medium mb-1">ID Donor</label>
                   <input name="donor_id" class="border rounded text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2 w-full" value={editData().donor_id ?? ''} onInput={handleEditChange} />
                 </div>
                 <div>
-                  <label class="font-semibold block mb-1">Pengadaan (UUID)</label>
+                  <label class="block text-xs sm:text-sm font-medium mb-1">ID Pengadaan</label>
                   <input name="procurement_id" class="border rounded text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2 w-full" value={editData().procurement_id ?? ''} onInput={handleEditChange} />
+                </div>
+                <div>
+                  <label class="block text-xs sm:text-sm font-medium mb-1">Nilai Barang (opsional)</label>
+                  <div class="relative">
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                      <span class="text-gray-500">Rp</span>
+                    </div>
+                    <input 
+                      name="value" 
+                      class="border rounded text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2 w-full pl-8" 
+                      value={editData().value ? formatRupiah(editData().value, false) : ""} 
+                      onInput={(e) => {
+                        // Gunakan fungsi formatRupiahInput untuk memformat input dan mendapatkan nilai bersih
+                        const input = e.target as HTMLInputElement;
+                        const sanitizedValue = formatRupiahInput(input);
+                        
+                        // Update state dengan nilai yang sudah difilter
+                        setDirty(true);
+                        setEditData(prev => ({ ...prev, value: sanitizedValue }));
+                      }} 
+                      placeholder="1.000.000"
+                      type="text"
+                      inputmode="numeric"
+                    />
+                  </div>
+                  <p class="text-xs text-gray-500 mt-1">Perkiraan nilai barang dalam Rupiah</p>
                 </div>
               </div>
               <div class="flex gap-2 mt-6 justify-center">
@@ -376,6 +402,9 @@ export default function ItemDetailPage() {
               </div>
               <div>
                 <span class="font-semibold">Pengadaan:</span> {itemQuery.data?.procurement_id}
+              </div>
+              <div>
+                <span class="font-semibold">Nilai Barang:</span> {itemQuery.data?.value ? formatRupiah(itemQuery.data.value) : "-"}
               </div>
               <div>
                 <span class="font-semibold">Dibuat:</span> {itemQuery.data?.created_at ? new Date(itemQuery.data.created_at).toLocaleString() : ""}
